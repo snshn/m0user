@@ -1,10 +1,12 @@
 // Project: m0user pedal
+// Board: Arduino Leonardo
 
 #include <Mouse.h>
 #include <Wire.h>
 
-#define CLICK_DELAY    4
-#define CLICK_DURATION 8
+#define CLICK_DELAY     30
+#define CLICK_DURATION  10
+#define EYE_CANDY       false
 
 enum _bits_buttons {
     BIT_BUTTON_1 = 1,
@@ -33,18 +35,23 @@ void loop() {
       state = (state & BIT_BUTTON_1) ? state ^ BIT_BUTTON_1 : state;
     }
 
-    if (state & BIT_BUTTON_1) {
-        if (last_state & BIT_BUTTON_1) {
-            Mouse.release(BUTTON_1);
-            delay(CLICK_DELAY);
+    // Check if BUTTON_1 is currently pressed
+    if (state & BIT_BUTTON_1) { // BUTTON_1 is currently pressed
+        if (last_state & BIT_BUTTON_1) { // Check if BUTTON_1 was pressed during previous iteration
+            Mouse.release(BUTTON_1); // Release BUTTON_1 (mouse up)
+            delay(CLICK_DELAY); // Sleep for X milliseconds
         }
-        Mouse.press(BUTTON_1);
-        delay(CLICK_DURATION);
-        digitalWrite(LED_BUILTIN, HIGH);
-    } else {
-        if (last_state & BIT_BUTTON_1) {
-            Mouse.release(BUTTON_1);
-            digitalWrite(LED_BUILTIN, LOW);
+        Mouse.press(BUTTON_1); // Press BUTTON_1 (mouse down)
+        delay(CLICK_DURATION); // Sleep for X milliseconds
+#if EYE_CANDY
+        digitalWrite(LED_BUILTIN, HIGH); // Turn indicator LED on
+#endif
+    } else { // BUTTON_1 is currently not pressed
+        if (last_state & BIT_BUTTON_1) { // BUTTON_1 was pressed during previous iteration
+            Mouse.release(BUTTON_1); // Release BUTTON_1 (mouse up)
+#if EYE_CANDY
+            digitalWrite(LED_BUILTIN, LOW); // Turn indicator LED off
+#endif
         }
     }
 
